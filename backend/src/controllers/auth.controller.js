@@ -1,4 +1,5 @@
 import { sendWelcomeEmail } from "../email/emailHandler.js";
+import cloudinary from "../lib/cloudinary.js";
 import { sender } from "../lib/resend.js";
 import { getJwtToken } from "../lib/utils.js";
 import User from "../model/User.js";
@@ -113,12 +114,32 @@ export const login = async (req, res) => {
       profilePic: user.profilePic,
     });
   } catch (error) {
-    console.error("Error in login controller",error);
-    res.status(500).json({message:"Internal server Error"})
+    console.error("Error in login controller", error);
+    res.status(500).json({ message: "Internal server Error" });
   }
 };
 
-export const logout=(_,res)=>{
-  res.cookie("jwt","",{maxAge:0})
-  res.status(200).json({message:"Logout successfully"})
-}
+export const logout = (_, res) => {
+  res.cookie("jwt", "", { maxAge: 0 });
+  res.status(200).json({ message: "Logout successfully" });
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { profilePic } = req.body;
+    if (!profilePic) {
+      return res.status(400).json({ message: " profile pic required" });
+    }
+    const response = await cloudinary.uploader.upload({ profilePic });
+    const updateUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { profilePic: response.secure_url },
+      { new: true },
+    );
+    return res.status(200).json({ updateProfile });
+  } catch (error) {
+    console.log("Error in update profile pic");
+
+    res.status(500).json({ message: "Internal Error" });
+  }
+};
