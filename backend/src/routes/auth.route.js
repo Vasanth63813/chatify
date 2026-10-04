@@ -5,7 +5,7 @@ import { arcjetProtect } from "../middleware/arcjet.middleware.js";
 
 const router = express.Router();
 
-router.use(arcjetProtect)
+//router.use(arcjetProtect)
 
 router.get('/test',(req,res)=>{
     res.send("Test arcjet middleware")
